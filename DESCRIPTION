@@ -12,6 +12,8 @@ Description: Areal interpolation of population data obtained
     former to the latter using Areal Weighting and Volume Weighting 
     Interpolation methods.
 License: GPL-3
+URL: https://github.com/mbatsaris/populR/
+BugReports: https://github.com/mbatsaris/populR/issues/
 Encoding: UTF-8
 LazyData: true
 Imports:
