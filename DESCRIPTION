@@ -1,7 +1,7 @@
 Package: populR
 Type: Package
 Title: Areal Interpolation of Population Data
-Version: 0.1.4
+Version: 0.1.5
 Author: Marios Batsaris
 Maintainer: Marios Batsaris <m.batsaris@aegean.gr>
 Description: Areal interpolation of population data obtained
