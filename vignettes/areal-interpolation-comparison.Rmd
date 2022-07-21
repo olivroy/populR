@@ -1,0 +1,433 @@
+---
+title: "Areal Interpolation of Urban Population - A Comparative Analysis"
+date: "`r Sys.Date()`"
+author: "Marios Batsaris"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Areal Interpolation of Urban Population - A Comparative Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+# attach library
+library(populR)
+
+# load data
+data('src')
+data('trg')
+
+source <- src
+target <- trg
+
+# generate reference population 
+target$floors <- target$fl_0_use + target$fl_1_use + target$fl_2_use + target$fl_3_use +
+   target$fl_4_use + target$fl_5_use + target$fl_6_use + target$fl_7_use
+
+rf <- pp_estimate(target = target, source = source, sid = sid, spop = pop,
+                  volume = floors, method = vwi)
+
+```
+
+
+## Introduction
+
+Areal Interpolation may be defined as the process of transforming data reported
+over a set of spatial units (source) to another (target). Its application to population 
+data has attracted considerable attention during the last few decades. A massive amount 
+of methods have been reported in the scientific literature. Most of them focus 
+on the improvement of the accuracy by using more sophisticated techniques rather 
+than developing standardized methods. As a result, only a few implementation 
+tools exists within the R community.
+
+One of the most common, easy and straightforward methods of Areal Interpolation 
+is Areal Weighting Interpolation (AWI). AWI proportionately interpolates the 
+population values of the source features based on areal (or spatial) weights 
+calculated by the area of intersection between the source and the target zones.
+
+[`sf`](https://cran.r-project.org/web/packages/sf/) and
+[`areal`](https://cran.r-project.org/web/packages/areal/)
+packages provide Areal Interpolation functionality within the R ecosystem. Both
+packages implement (AWI). `sf` functionality comes up with extensive and 
+intensive interpolation options and calculates the areal weights based on the 
+total area of the source features (total weights). `sf` functionality is suitable 
+for completely overlapping data. `areal` extends the existing functionality of 
+the `sf` package by introducing an additional formula for data without complete overlap. 
+In this case weights are calculated using the sum of the remaining source areas 
+after the intersection (sum weights).
+ 
+When the case involves Areal Interpolation of urban population data (small scale
+applications) where the source features (such as city blocks or census tracts) 
+are somehow larger than target features (such as buildings) in terms of footprint
+area the `sf` functionality (total weights) is unable to calculate areal weights 
+properly and therefore, is not ideal for such applications. `areal` functionality
+may be confusing for novice R (or GIS) users as it is not obvious that the weight
+option should be set to ``sum`` to calculate areal weights correctly.
+ 
+To overcome these limitations [`populR`](https://cran.r-project.org/web/packages/populR) 
+is introduced. `populR` is suitable for Areal Interpolation of urban population
+and provides an AWI approach that matches the existing functionality 
+of `areal` using ``sum weights`` and additionally, proposes a VWI approach which,
+to our knowledge, extends the existing Areal Interpolation functionality within 
+the R ecosystem. VWI uses the area of intersection between source and target 
+features multiplied by the building height or number of floors (volume) 
+to guide the interpolation process. 
+
+In this vignette a comparative analysis of Areal Interpolation alternatives within the
+programming environment of R is carried out. `sf`, `areal` and `populR` results
+are obtained and further compared to a more realistic population distribution.
+
+## Case Study
+
+A small part of the city of Mytilini, Lesvos, Greece was chosen as the case study
+(figure below).The study area consists of 9 city blocks (source) counting 911 
+residents and 179 buildings units (target) including floor number information.
+These data are included in `populR` package for further experimentation.
+
+
+```{r sarea, fig.height = 5, fig.width = 5, fig.align = "center"}
+
+# attach library
+library(populR)
+
+# load data
+data('src')
+data('trg')
+
+source <- src
+target <- trg
+
+# plot data
+plot(source['geometry'], col = "#634B56", border = NA)
+plot(target['geometry'], col = "#FD8D3C", add = T)
+
+```
+
+## Implementation
+
+In this section a demonstration of the `sf`, `areal` and `populR` packages takes place.
+First, the packages are attached to the script and next `populR` built-in data
+are loaded. Then, Areal Interpolation functions are executed for each one of the
+aforementioned packages.
+
+The ``st_interpolate_aw()`` function of the `sf` package takes:
+
+
+1. ``x``: an object of class `sf` with data to be interpolated
+2. ``to``: the target geometries (sf object) 
+3. ``extensive``: whether to use extensive (TRUE) or intensive interpolation (FALSE)
+
+
+`areal` provides the ``aw_interpolate()`` function which requires:
+
+
+1. ``data``: an sf object to be used as target 
+2. ``tid``: target identification numbers
+3. ``source``: an sf object with data to be interpolated
+4. ``sid``: source identification numbers
+5. ``weight``: may be either ``sum`` or ``total`` for extensive interpolation and 
+``sum`` intensive interpolation
+6. ``output``: whether `sf` object or `tibble` 
+7. ``extensive``: a vector of quoted (extensive) variable names - optional if 
+    intensive is specified
+8. ``intensive``: a vector of quoted (intensive) variable names - optional if 
+    extensive is specified
+
+
+Finally, `populR` offers ``pp_estimate()`` function which takes:
+
+1. ``target``: an sf object to be used as target
+2. ``source``: an sf object with data to be interpolated
+3. ``sid``: source identification number
+4. ``spop``: source population values to be interpolated
+5. ``volume``: target volume information (number of floors or height) - required
+for the vwi approach
+6. ``point``: whether to return point geometries (TRUE) or not (FALSE) - optional
+7. ``method``: whether to use awi or vwi
+
+
+Evidently, `sf` package's `st_interpolate_aw` function requires only 3 arguments
+which make it very easy to implement while `populR` requires at least 5 and `areal`
+at least 7 arguments which potentially increases the implementation complexity.
+
+On the other hand, only `areal` may be used for multiple interpolations at once
+as the ``extensive`` or ``intensive`` argument takes a vector of quoted values 
+(not included in this vignette).
+
+For the reader's convenience names were shortened as follows:
+
+
+* ``awi``: populR awi approach
+* ``vwi``: populR vwi approach
+* ``aws``: areal using extensive interpolation and sum weights
+* ``awt``: areal using extensive interpolation and total weights
+* ``sf``: sf using extensive interpolation
+
+
+```{r setup, message=FALSE, warning=FALSE}
+
+# attach libraries 
+library(populR)
+library(areal)
+library(sf)
+
+# load data
+data('src')
+data('trg')
+
+source <- src
+target <- trg
+
+# populR - awi
+awi <- pp_estimate(target = target, source = source, spop = pop, sid = sid, 
+                   method = awi)
+# populR - vwi
+vwi <- pp_estimate(target = target, source = source, spop = pop, sid = sid, 
+                   volume = floors, method = vwi)
+
+# areal - sum weights
+aws <- aw_interpolate(target, tid = tid, source = source, sid = 'sid', 
+                      weight = 'sum', output = 'sf', extensive = 'pop')
+# areal - total weights
+awt <- aw_interpolate(target, tid = tid, source = source, sid = 'sid', 
+                      weight = 'total', output = 'sf', extensive = 'pop')
+
+# sf - total weights
+sf <- st_interpolate_aw(source['pop'], target, extensive = TRUE)
+
+```
+
+
+## Results
+
+The study area counts 911 residents as already mentioned in previous section. From
+the code chunk below it is clear that ``awi``, ``vwi`` and ``aws`` 
+correctly estimated population values as they sum to 911 while ``awt`` 
+and ``sf`` results underestimated values. This is expected as both methods use 
+the total area of the source features during the interpolation process and are 
+useful when source and target features completely overlap. 
+
+```{r}
+
+# sum initial values
+sum(source$pop)
+
+# populR - awi
+sum(awi$pp_est)
+
+# populR - vwi
+sum(vwi$pp_est)
+
+# areal - awt
+sum(awt$pop)
+
+# areal - aws
+sum(aws$pop)
+
+# sf
+sum(sf$pop)
+
+
+```
+
+Moreover, identical results were obtained by the ``awi`` and ``aws`` approaches and
+somehow different results by the ``vwi`` as shown in the code block below.
+
+```{r}
+
+# order values using tid
+awi <- awi[order(awi$tid),]
+vwi <- vwi[order(vwi$tid),]
+
+# get values and create a df
+awi_values <- awi$pp_est[1:20]
+vwi_values <- vwi$pp_est[1:20]
+
+awt_values <- awt$pop[1:20]
+aws_values <- aws$pop[1:20]
+
+sf_values <- sf$pop[1:20]
+
+df <- data.frame(vwi = vwi_values, awi = awi_values, aws = aws_values,
+                 awt = awt_values, sf = sf_values)
+
+df
+
+```
+
+
+### Comparison to Reference Data
+
+Due to confidentiality concerns population data at building level are not available
+in Greece. Therefore, an alternate population distribution previously published
+in [Batsaris et al. 2019](https://doi.org/10.4018/ijagr.2019100103) was used as 
+reference data set to compare the results.
+
+This reference data set was produced using the ``vwi`` approach and residential 
+floor use data in binary format where *0* is for non-residential floors and *1* is for
+residential floors as ``volume`` information. Floor use data were derived from 
+a field survey conducted in the city of Mytilini (block below).
+
+```{r}
+
+target
+
+```
+
+Each building in the study area may have up to 7 floors (above ground level) but 
+not all of them are residential. First, residential floors must be calculated
+for each building and then, ``vwi`` is used to estimate building population using
+residential floors as the ``volume`` argument.
+
+
+```{r, include=FALSE}
+
+# calculate number of residential floors
+target$floors <- target$fl_0_use + target$fl_1_use + target$fl_2_use + target$fl_3_use +
+   target$fl_4_use + target$fl_5_use + target$fl_6_use + target$fl_7_use
+
+# estimate reference population 
+rf <- pp_estimate(target = target, source = source, sid = sid, spop = pop,
+                  volume = floors, method = vwi)
+
+# order asc and select the first 20
+rf <- rf[order(rf$tid),]
+rf <- rf$pp_est[1:20]
+
+df <- cbind(rf, df)
+
+df
+
+```
+
+
+We use scatter diagrams to investigate the relationship of the results with the 
+reference data. Generally, the diagrams suggest strong and positive relationships 
+in all cases. However, ``vwi`` provides the strongest relationship and $R^2$
+coefficient.
+
+```{r scatter, fig.height = 7, fig.width = 7.2, fig.align = "center", message=FALSE, warning=FALSE}
+
+for (i in 1:1) {
+  for (j in 2:ncol(df)) {
+    plot(df[,i], df[,j], xlab = names(df)[i], ylab = names(df)[j], col="#634B56", main = sprintf('rf vs %s', names(df)[j]))
+    abline(lm(df[,i] ~ df[,j]), col="#FD8D3C")
+    text(x = 20, y = 1, label = paste0("r^2 = ", round(cor(df[, j], df[, i]), 5)), cex = 0.9)
+  }
+}
+
+
+```
+
+To compare the results with the reference data set MAE (Mean Absolute Error) 
+was calculated. ``vwi`` provides the smallest MAE value in comparison with
+the other methods as shown below.
+
+```{r}
+
+# calculate mae
+library(Metrics)
+mae(df$rf, df$awi)
+mae(df$rf, df$vwi)
+mae(df$rf, df$aws)
+mae(df$rf, df$awt)
+mae(df$rf, df$sf)
+
+```
+
+RMSE (Root Mean Squared Error) is also calculated. Again, ``vwi`` provides
+the smallest error value as shown in the code block below.
+
+```{r}
+
+# calculate rmse
+rmse(df$rf, df$awi)
+rmse(df$rf, df$vwi)
+rmse(df$rf, df$aws)
+rmse(df$rf, df$awt)
+rmse(df$rf, df$sf)
+
+```
+
+
+## Comparison on Performance
+
+Finally, a performance comparison (execution times) is carried out in this 
+section using [microbenchmark](https://cran.r-project.org/web/packages/microbenchmark/) 
+package. Execution time measurements suggest that `populR` functionality executed
+much faster than `areal` and `sf` as shown below. Both ``awi`` and ``vwi`` achieved
+the best mean  execution time (about 76.74 milliseconds). ``aws`` follows with
+136.67  milliseconds and finally, ``awt`` with 180.53 milliseconds.
+
+```{r}
+
+library(microbenchmark)
+
+# performance comparison
+microbenchmark(
+  suppressWarnings(pp_estimate(target = target, source = source, spop = pop, sid = sid, 
+                   method = awi)),
+  suppressWarnings(pp_estimate(target = target, source = source, spop = pop, sid = sid, 
+                   volume = floors, method = vwi)),
+  aw_interpolate(target, tid = tid, source = source, sid = 'sid', 
+                      weight = 'sum', output = 'sf', extensive = 'pop'),
+  aw_interpolate(target, tid = tid, source = source, sid = 'sid', 
+                      weight = 'total', output = 'sf', extensive = 'pop'),
+  suppressWarnings(st_interpolate_aw(source['pop'], target, extensive = TRUE))
+)
+
+
+```
+
+
+## Summary
+
+In this vignette a demonstration and a comparative analysis of areal 
+interpolation packages implemented in  urban population data is undertaken. 
+`sf` and `areal` provide general purpose AWI functionality while
+`populR` focuses on areal interpolation of population data. Additionally, `populR`
+provides VWI which, to the best of my knowledge, extends R's existing functionality.
+
+Mytilini, Greece was used as the case study to investigate three main pillars: 
+a) implementation, b) results, c) performance.  Notes on implementation indicate 
+that `sf` requires only 3 arguments to use while `populR` at least 5 and `areal` 7. 
+The results provide insight that ``sf`` and ``awt`` may not be ideal for data that 
+are not completely overlapping. Moreover, ``aws`` and ``awi`` obtained the same 
+results while ``vwi`` outperformed the others in comparison to the reference data set.
+Finally, `populR` performs much faster than `sf` and `areal` packages.
+
+
+
+
+# ```{r awi, fig.height = 7, fig.width = 7.2, fig.align = "center", message=FALSE, warning=FALSE}
+# 
+# # attach libraries
+# library(classInt)
+# library(RColorBrewer)
+# library(maptools)
+# 
+# # define number of classes, color palette and breakpoints
+# n <- 6
+# pal <- brewer.pal(n, "OrRd")
+# brks <- c(0, 1, 2, 4, 10, 40, 86)
+# 
+# # rename fields from areal and sf
+# colnames(awt)[colnames(awt) == 'pop'] <- 'pp_est'
+# colnames(aws)[colnames(aws) == 'pop'] <- 'pp_est'
+# colnames(sf)[colnames(sf) == 'pop'] <- 'pp_est'
+# 
+# # plot the results
+# myList <- list(awi = awi, vwi = vwi, aws = aws, awt = awt, sf = sf)
+# 
+# for (i in 1:length(myList)) {
+#   plot(myList[[i]]['pp_est'], col = pal[findInterval(myList[[i]]$pp_est, brks, all.inside = T)],
+#        main = names(myList)[i])
+#   legend('bottomright', legend=rev(leglabs(round(brks))),  title= "Legend", fill=rev(pal))
+# }
+# 
+# ```
