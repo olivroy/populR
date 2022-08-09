@@ -7,27 +7,35 @@
 pp_estimate(target, source, sid, spop, volume = NULL, point = FALSE, method)
 }
 \arguments{
-\item{target}{an object of class \code{sf} representing individual
-building polygons}
+\item{target}{An object of class \code{sf} that is used to interpolate data
+to. Usually, target may include polygon features representing building units}
 
-\item{source}{an object of class \code{sf} representing coarse polygon
-features (such as census tracts or city blocks) including
-population counts}
+\item{source}{An object of class \code{sf} including data to be interpolated.
+Source may be a set of coarse polygon features such as city blocks or
+census tracts}
 
-\item{sid}{source id}
+\item{sid}{Source identification number}
 
-\item{spop}{source population}
+\item{spop}{Source population values to be interpolated}
 
-\item{volume}{target volume (height or number of floors)}
+\item{volume}{Target feature volume information (height or number of floors).
+Required when \code{method=vwi}}
 
-\item{point}{whether to use point geometries (TRUE/FALSE)}
+\item{point}{Whether to return point geometries (FALSE by default)}
 
-\item{method}{available methods: awi, vwi}
+\item{method}{Two methods provided: \code{awi} (areal weighting interpolation)
+and \code{vwi} (volume weighting interpolation). \code{awi} proportionately
+interpolates the population values based on areal weights calculated
+by the area of intersection between the source and target zones. \code{vwi}
+proportionately interpolates the population values based on areal weights
+calculated by the area of intersection between the source and target zones
+multipled by the volume information (height or number of floors).}
 }
 \value{
-An object of class sf including estimated population
-    counts for target zone features using either awi or vwi methods. The estimated population
-    counts are stored in a new column called pp_est.
+An object of class \code{sf} including estimated population
+    counts for target features using either \code{awi} or \code{vwi}
+    methods. The estimated population counts are stored in a new column called
+    pp_est.
 }
 \description{
 Areal Interpolation of Population Data

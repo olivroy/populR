@@ -1,19 +1,27 @@
 #' Areal Interpolation of Population Data
 #'
-#' @param target an object of class \code{sf} representing individual
-#'     building polygons
-#' @param source an object of class \code{sf} representing coarse polygon
-#'     features (such as census tracts or city blocks) including
-#'     population counts
-#' @param sid source id
-#' @param spop source population
-#' @param volume target volume (height or number of floors)
-#' @param point whether to use point geometries (TRUE/FALSE)
-#' @param method available methods: awi, vwi
+#' @param target An object of class \code{sf} that is used to interpolate data
+#'     to. Usually, target may include polygon features representing building units
+#' @param source An object of class \code{sf} including data to be interpolated.
+#'     Source may be a set of coarse polygon features such as city blocks or
+#'     census tracts
+#' @param sid Source identification number
+#' @param spop Source population values to be interpolated
+#' @param volume Target feature volume information (height or number of floors).
+#'     Required when \code{method=vwi}
+#' @param point Whether to return point geometries (FALSE by default)
+#' @param method Two methods provided: \code{awi} (areal weighting interpolation)
+#'     and \code{vwi} (volume weighting interpolation). \code{awi} proportionately
+#'     interpolates the population values based on areal weights calculated
+#'     by the area of intersection between the source and target zones. \code{vwi}
+#'     proportionately interpolates the population values based on areal weights
+#'     calculated by the area of intersection between the source and target zones
+#'     multipled by the volume information (height or number of floors).
 #'
-#' @return An object of class sf including estimated population
-#'     counts for target zone features using either awi or vwi methods. The estimated population
-#'     counts are stored in a new column called pp_est.
+#' @return An object of class \code{sf} including estimated population
+#'     counts for target features using either \code{awi} or \code{vwi}
+#'     methods. The estimated population counts are stored in a new column called
+#'     pp_est.
 #' @export
 #'
 #' @importFrom rlang quo_name
@@ -89,11 +97,11 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE,
 
   # check whether params exist in the given source object
   if (!sid %in% colnames(source)) {
-    usethis::ui_stop('{sid} cannot be found in the given source object')
+    usethis::ui_stop('{sid} cannot be found')
   }
 
   if (!spop %in% colnames(source)) {
-    usethis::ui_stop('{spop} cannot be found in the given source object')
+    usethis::ui_stop('{spop} cannot be found')
   }
 
   # check whether method is valid
@@ -110,7 +118,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE,
 
   # check whether point is logical
   if (!is.logical(point)) {
-    usethis::ui_stop('point must be either TRUE/T or FALSE/F')
+    usethis::ui_stop('point must be logical (T|TRUE, F|FALSE')
   }
 
   # check whether sid and pop already exists in both target and source features
@@ -131,7 +139,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE,
     }
 
     if (!volume %in% colnames(target)) {
-      usethis::ui_stop('{volume} cannot be found in the given target object')
+      usethis::ui_stop('{volume} cannot be found')
     }
 
     if (!is.numeric(target[, volume, drop = TRUE])) {

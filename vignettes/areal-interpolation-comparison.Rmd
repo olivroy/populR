@@ -1,10 +1,10 @@
 ---
-title: "Areal Interpolation of Urban Population - A Comparative Analysis"
+title: "Population Downscaling Using Areal Interpolation - A Comparative Analysis"
 date: "`r Sys.Date()`"
 author: "Marios Batsaris"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Areal Interpolation of Urban Population - A Comparative Analysis}
+  %\VignetteIndexEntry{Population Downscaling Using Areal Interpolation - A Comparative Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,23 +14,6 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-
-# attach library
-library(populR)
-
-# load data
-data('src')
-data('trg')
-
-source <- src
-target <- trg
-
-# generate reference population 
-target$floors <- target$fl_0_use + target$fl_1_use + target$fl_2_use + target$fl_3_use +
-   target$fl_4_use + target$fl_5_use + target$fl_6_use + target$fl_7_use
-
-rf <- pp_estimate(target = target, source = source, sid = sid, spop = pop,
-                  volume = floors, method = vwi)
 
 ```
 
@@ -245,33 +228,30 @@ awi <- awi[order(awi$tid),]
 vwi <- vwi[order(vwi$tid),]
 
 # get values and create a df
-awi_values <- awi$pp_est[1:20]
-vwi_values <- vwi$pp_est[1:20]
+awi_values <- awi$pp_est
+vwi_values <- vwi$pp_est
 
-awt_values <- awt$pop[1:20]
-aws_values <- aws$pop[1:20]
+awt_values <- awt$pop
+aws_values <- aws$pop
 
-sf_values <- sf$pop[1:20]
+sf_values <- sf$pop
 
 df <- data.frame(vwi = vwi_values, awi = awi_values, aws = aws_values,
                  awt = awt_values, sf = sf_values)
 
-df
+df[1:20,]
 
 ```
 
 
 ### Comparison to Reference Data
 
-Due to confidentiality concerns population data at building level are not available
+Due to confidentiality concerns, population data at building level are not available
 in Greece. Therefore, an alternate population distribution previously published
 in [Batsaris et al. 2019](https://doi.org/10.4018/ijagr.2019100103) was used as 
 reference data set to compare the results.
 
-This reference data set was produced using the ``vwi`` approach and residential 
-floor use data in binary format where *0* is for non-residential floors and *1* is for
-residential floors as ``volume`` information. Floor use data were derived from 
-a field survey conducted in the city of Mytilini (block below).
+This reference population values are included in the built-in data set as shown below in the field ``rf``.
 
 ```{r}
 
@@ -279,80 +259,55 @@ target
 
 ```
 
-Each building in the study area may have up to 7 floors (above ground level) but 
-not all of them are residential. First, residential floors must be calculated
-for each building and then, ``vwi`` is used to estimate building population using
-residential floors as the ``volume`` argument.
+In the code chunk below the first 20 features are presented for comparison.
 
-
-```{r, include=FALSE}
-
-# calculate number of residential floors
-target$floors <- target$fl_0_use + target$fl_1_use + target$fl_2_use + target$fl_3_use +
-   target$fl_4_use + target$fl_5_use + target$fl_6_use + target$fl_7_use
-
-# estimate reference population 
-rf <- pp_estimate(target = target, source = source, sid = sid, spop = pop,
-                  volume = floors, method = vwi)
-
-# order asc and select the first 20
-rf <- rf[order(rf$tid),]
-rf <- rf$pp_est[1:20]
+```{r}
+rf <- awi$rf
 
 df <- cbind(rf, df)
 
-df
+df[1:20,]
 
 ```
 
 
-We use scatter diagrams to investigate the relationship of the results with the 
-reference data. Generally, the diagrams suggest strong and positive relationships 
+`populR` provides a function (``pp_compare()``) to compare the results with alternate
+population data. ``pp_compare()`` produces scatter diagram, linear regression model, correlation
+coeficient ($R^2$), MAE (Mean Absolute Error) and RMSE (Root 
+Mean Squared Error) to investigate the relationship of the results with the 
+reference (or other) data. 
+
+Generally, the diagrams suggest strong and positive relationships 
 in all cases. However, ``vwi`` provides the strongest relationship and $R^2$
-coefficient.
+coefficient. ``vwi`` provides the smallest MAE value in comparison with
+the other methods as shown below.
 
 ```{r scatter, fig.height = 7, fig.width = 7.2, fig.align = "center", message=FALSE, warning=FALSE}
 
-for (i in 1:1) {
-  for (j in 2:ncol(df)) {
-    plot(df[,i], df[,j], xlab = names(df)[i], ylab = names(df)[j], col="#634B56", main = sprintf('rf vs %s', names(df)[j]))
-    abline(lm(df[,i] ~ df[,j]), col="#FD8D3C")
-    text(x = 20, y = 1, label = paste0("r^2 = ", round(cor(df[, j], df[, i]), 5)), cex = 0.9)
-  }
-}
+awi_error <- pp_compare(df, estimated = awi, actual = rf, title = "awi vs actual")
+awi_error
+
+vwi_error <- pp_compare(df, estimated = vwi, actual = rf, title = "vwi vs actual")
+vwi_error
+
+sf_error <- pp_compare(df, estimated = sf, actual = rf, title = "sf vs actual")
+sf_error
+
+awt_error <- pp_compare(df, estimated = awt, actual = rf, title = "awt vs actual")
+awt_error
+
+aws_error <- pp_compare(df, estimated = aws, actual = rf, title = "aws vs actual")
+aws_error
 
 
 ```
 
-To compare the results with the reference data set MAE (Mean Absolute Error) 
-was calculated. ``vwi`` provides the smallest MAE value in comparison with
-the other methods as shown below.
 
-```{r}
 
-# calculate mae
-library(Metrics)
-mae(df$rf, df$awi)
-mae(df$rf, df$vwi)
-mae(df$rf, df$aws)
-mae(df$rf, df$awt)
-mae(df$rf, df$sf)
-
-```
 
 RMSE (Root Mean Squared Error) is also calculated. Again, ``vwi`` provides
 the smallest error value as shown in the code block below.
 
-```{r}
-
-# calculate rmse
-rmse(df$rf, df$awi)
-rmse(df$rf, df$vwi)
-rmse(df$rf, df$aws)
-rmse(df$rf, df$awt)
-rmse(df$rf, df$sf)
-
-```
 
 
 ## Comparison on Performance
@@ -403,31 +358,3 @@ Finally, `populR` performs much faster than `sf` and `areal` packages.
 
 
 
-
-# ```{r awi, fig.height = 7, fig.width = 7.2, fig.align = "center", message=FALSE, warning=FALSE}
-# 
-# # attach libraries
-# library(classInt)
-# library(RColorBrewer)
-# library(maptools)
-# 
-# # define number of classes, color palette and breakpoints
-# n <- 6
-# pal <- brewer.pal(n, "OrRd")
-# brks <- c(0, 1, 2, 4, 10, 40, 86)
-# 
-# # rename fields from areal and sf
-# colnames(awt)[colnames(awt) == 'pop'] <- 'pp_est'
-# colnames(aws)[colnames(aws) == 'pop'] <- 'pp_est'
-# colnames(sf)[colnames(sf) == 'pop'] <- 'pp_est'
-# 
-# # plot the results
-# myList <- list(awi = awi, vwi = vwi, aws = aws, awt = awt, sf = sf)
-# 
-# for (i in 1:length(myList)) {
-#   plot(myList[[i]]['pp_est'], col = pal[findInterval(myList[[i]]$pp_est, brks, all.inside = T)],
-#        main = names(myList)[i])
-#   legend('bottomright', legend=rev(leglabs(round(brks))),  title= "Legend", fill=rev(pal))
-# }
-# 
-# ```

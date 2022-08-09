@@ -1,13 +1,14 @@
 #' Rounding Function
 #'
-#' @param target object of class \code{sf} obtained by the
-#'     \link[populR]{pp_estimate} function and includes population
-#'     estimates
-#' @param tpop target population
-#' @param spop source population
-#' @param sid source id
+#' @param x An object of class \code{sf} obtained by the
+#'     \link[populR]{pp_estimate} function
+#' @param tpop Target population estimates obtained by the
+#'     \link[populR]{pp_estimate} function
+#' @param spop Initial source population values (included after the implementation
+#'     of the \link[populR]{pp_estimate} function)
+#' @param sid Source identification number
 #'
-#' @return an object of class \code{sf} including rounded population counts stored
+#' @return An object of class \code{sf} including rounded population counts stored
 #'     in a new column called pp_int
 #' @export
 #'
@@ -34,10 +35,10 @@
 #' # vwi - round
 #' pp_round(vwi, tpop = pp_est, spop = pop, sid = sid)
 #'
-pp_round <- function(target, tpop, spop, sid) {
+pp_round <- function(x, tpop, spop, sid) {
   #check arguments
-  if (missing(target)) {
-    usethis::ui_stop('target is required')
+  if (missing(x)) {
+    usethis::ui_stop('x is required')
   }
 
   if (missing(tpop)) {
@@ -58,38 +59,38 @@ pp_round <- function(target, tpop, spop, sid) {
   tpop <- rlang::quo_name(rlang::enquo(tpop))
 
   # check whether parameters exist in the given target object
-  if (!spop %in% colnames(target)) {
-    usethis::ui_stop('{spop} cannot be found in the given target object')
+  if (!spop %in% colnames(x)) {
+    usethis::ui_stop('{spop} cannot be found')
   }
 
-  if (!sid %in% colnames(target)) {
-    usethis::ui_stop('{sid} cannot be found in the given target object')
+  if (!sid %in% colnames(x)) {
+    usethis::ui_stop('{sid} cannot be found')
   }
 
-  if (!tpop %in% colnames(target)) {
-    usethis::ui_stop('{tpop} cannot be found in the given target object')
+  if (!tpop %in% colnames(x)) {
+    usethis::ui_stop('{tpop} cannot be found')
   }
 
   # check whether spop and tpop are numeric
-  if (!is.numeric(target[, spop, drop = TRUE])) {
+  if (!is.numeric(x[, spop, drop = TRUE])) {
     usethis::ui_stop('{spop} must be numeric')
   }
 
-  if (!is.numeric(target[, tpop, drop = TRUE])) {
+  if (!is.numeric(x[, tpop, drop = TRUE])) {
     usethis::ui_stop('{tpop} must be numeric')
   }
 
-  target$newid <- 1:nrow(target)
-  target$pp_int <- round(target[, tpop, drop = TRUE], 0)
-  target$diff <- target[, tpop, drop = TRUE] - target$pp_int
+  x$newid <- 1:nrow(x)
+  x$pp_int <- round(x[, tpop, drop = TRUE], 0)
+  x$diff <- x[, tpop, drop = TRUE] - x$pp_int
 
-  code <- unique(target[, sid, drop = TRUE])
+  code <- unique(x[, sid, drop = TRUE])
 
   df <- data.frame()
   for (i in 1:length(code)) {
-    df <- rbind(df, c(code[i], unique(target[, spop, drop = TRUE][target[, sid, drop = TRUE] == code[i]]),
-                      sum(target[, tpop, drop = TRUE][target[, sid, drop = TRUE] == code[i]]),
-                      sum(target[, 'pp_int', drop = TRUE][target[, sid, drop = TRUE] == code[i]])))
+    df <- rbind(df, c(code[i], unique(x[, spop, drop = TRUE][x[, sid, drop = TRUE] == code[i]]),
+                      sum(x[, tpop, drop = TRUE][x[, sid, drop = TRUE] == code[i]]),
+                      sum(x[, 'pp_int', drop = TRUE][x[, sid, drop = TRUE] == code[i]])))
   }
   names(df) <- c('code', 'spop', 'estpop', 'intpop')
 
@@ -100,27 +101,27 @@ pp_round <- function(target, tpop, spop, sid) {
       next
     } else if (diaf > 0) {
       d <- abs(diaf)
-      sub <- target[target[, sid, drop = TRUE] == df$code[i], ]
+      sub <- x[x[, sid, drop = TRUE] == df$code[i], ]
       sub <- sub[order(-sub$diff), ]
       for (j in 1:d) {
         sub$pp_int[j] <- sub$pp_int[j] + 1
       }
     } else if (diaf < 0) {
       d <- abs(diaf)
-      sub <- target[target[, sid, drop = TRUE] == df$code[i], ]
+      sub <- x[x[, sid, drop = TRUE] == df$code[i], ]
       sub <- sub[order(sub$diff), ]
       for (j in 1:d) {
         sub$pp_int[j] <- sub$pp_int[j] - 1
       }
     }
     for (j in 1:nrow(sub)) {
-      target$pp_int[target$newid == sub$newid[j]] <- sub$pp_int[j]
+      x$pp_int[x$newid == sub$newid[j]] <- sub$pp_int[j]
     }
   }
 
-  target$newid <- NULL
-  target$diff <- NULL
+  x$newid <- NULL
+  x$diff <- NULL
 
-  return(target)
+  return(x)
 
 }

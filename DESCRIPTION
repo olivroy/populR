@@ -1,11 +1,12 @@
 Package: populR
 Type: Package
-Title: Areal Interpolation of Population Data
-Version: 0.1.5
+Title: Population Downscaling
+Version: 0.1.6
 Author: Marios Batsaris
 Maintainer: Marios Batsaris <m.batsaris@aegean.gr>
-Description: Areal interpolation of population data obtained
-    by census surveys. Given a set of source zone polygons such as
+Description: Downscaling of population data obtained
+    by census surveys using areal interpolation. Given a 
+    set of source zone polygons such as
     census tracts or city blocks alongside with population counts and a 
     target zone of incogruent yet superimposed polygon features (such as
     individual buildings) populR transforms population counts from the 
@@ -20,7 +21,9 @@ Imports:
     sf,
     rlang,
     Metrics,
-    usethis
+    usethis,
+    areal,
+    microbenchmark
 Depends: R (>= 3.3.0)
 RoxygenNote: 7.1.2
 Suggests: 

@@ -4,21 +4,22 @@
 \alias{pp_round}
 \title{Rounding Function}
 \usage{
-pp_round(target, tpop, spop, sid)
+pp_round(x, tpop, spop, sid)
 }
 \arguments{
-\item{target}{object of class \code{sf} obtained by the
-\link[populR]{pp_estimate} function and includes population
-estimates}
+\item{x}{An object of class \code{sf} obtained by the
+\link[populR]{pp_estimate} function}
 
-\item{tpop}{target population}
+\item{tpop}{Target population estimates obtained by the
+\link[populR]{pp_estimate} function}
 
-\item{spop}{source population}
+\item{spop}{Initial source population values (included after the implementation
+of the \link[populR]{pp_estimate} function)}
 
-\item{sid}{source id}
+\item{sid}{Source identification number}
 }
 \value{
-an object of class \code{sf} including rounded population counts stored
+An object of class \code{sf} including rounded population counts stored
     in a new column called pp_int
 }
 \description{
