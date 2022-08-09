@@ -33,8 +33,8 @@ is Areal Weighting Interpolation (AWI). AWI proportionately interpolates the
 population values of the source features based on areal (or spatial) weights 
 calculated by the area of intersection between the source and the target zones.
 
-[`sf`](https://cran.r-project.org/web/packages/sf/) and
-[`areal`](https://cran.r-project.org/web/packages/areal/)
+[`sf`](https://cran.r-project.org/package=sf/) and
+[`areal`](https://cran.r-project.org/package=areal/)
 packages provide Areal Interpolation functionality within the R ecosystem. Both
 packages implement (AWI). `sf` functionality comes up with extensive and 
 intensive interpolation options and calculates the areal weights based on the 
@@ -52,7 +52,7 @@ properly and therefore, is not ideal for such applications. `areal` functionalit
 may be confusing for novice R (or GIS) users as it is not obvious that the weight
 option should be set to ``sum`` to calculate areal weights correctly.
  
-To overcome these limitations [`populR`](https://cran.r-project.org/web/packages/populR) 
+To overcome these limitations [`populR`](https://cran.r-project.org/package=populR) 
 is introduced. `populR` is suitable for Areal Interpolation of urban population
 and provides an AWI approach that matches the existing functionality 
 of `areal` using ``sum weights`` and additionally, proposes a VWI approach which,
@@ -313,7 +313,7 @@ the smallest error value as shown in the code block below.
 ## Comparison on Performance
 
 Finally, a performance comparison (execution times) is carried out in this 
-section using [microbenchmark](https://cran.r-project.org/web/packages/microbenchmark/) 
+section using [microbenchmark](https://cran.r-project.org/package=microbenchmark/) 
 package. Execution time measurements suggest that `populR` functionality executed
 much faster than `areal` and `sf` as shown below. Both ``awi`` and ``vwi`` achieved
 the best mean  execution time (about 76.74 milliseconds). ``aws`` follows with
