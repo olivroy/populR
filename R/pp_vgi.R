@@ -1,8 +1,9 @@
 #' Download and Count OSM Features Over Target
 #'
-#' @param x an object of class \code{sf}
-#' @param key osm feature key
-#' @param value osm feature value (tag)
+#' @param x an object of class \code{sf} that is used to interpolate data
+#'     to. Usually, x may include polygon features representing building units
+#' @param key osm feature key see \link[osmdata]{available_features}
+#' @param value osm feature value (tag) \link[osmdata]{available_tags}
 #'
 #' @importFrom usethis ui_stop
 #' @importFrom rlang quo_name
@@ -10,18 +11,30 @@
 #' @importFrom sf st_bbox
 #' @importFrom sf st_crs
 #' @importFrom sf st_transform
+#' @importFrom sf st_intersects
 #' @importFrom osmdata available_features
-#' @importFrom osmdata
+#' @importFrom osmdata available_tags
 #' @importFrom osmdata opq
 #' @importFrom osmdata add_osm_feature
 #' @importFrom osmdata osmdata_sf
 #' @importFrom dplyr %>%
 #'
 #' @return an object of class \code{sf} including OSM features
-#' @noRd
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#'     data('trg')
+#'
+#'     # example using just key
+#'     pp_vgi(trg, key = amenity)
+#'
+#'     # example using both key and value arguments
+#'     pp_vgi(trg, key = amenity, value = pharmacy)
+#' }
 #'
 
-pp_osm <- function(x, key, value = NULL) {
+pp_vgi <- function(x, key, value = NULL) {
   if (missing(x)) {
     usethis::ui_stop('x is required')
   }
@@ -54,9 +67,11 @@ pp_osm <- function(x, key, value = NULL) {
   } else {
     value <- rlang::quo_name(rlang::enquo(value))
     data <- opq(bbox = bb) %>% add_osm_feature(key = key, value = value) %>% osmdata_sf()
+    data <- data$osm_points
     x[, value] <- lengths(st_intersects(x, data))
   }
-
+  nm <- c(colnames(x)[colnames(x) != 'geometry'], 'geometry')
+  x <- x[, nm]
   x <- sf::st_zm(x)
   return(x)
 }
