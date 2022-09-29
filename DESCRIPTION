@@ -22,12 +22,14 @@ Imports:
     rlang,
     Metrics,
     usethis,
-    areal,
-    microbenchmark
+    osmdata,
+    dplyr
 Depends: R (>= 3.3.0)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Suggests: 
     rmarkdown,
+    microbenchmark,
+    areal,
     knitr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
