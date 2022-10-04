@@ -59,13 +59,18 @@ pp_vgi <- function(x, key, value = NULL) {
     usethis::ui_stop('{key} is not a valid OSM feature')
   }
 
+  value <- rlang::quo_name(rlang::enquo(value))
+
   bb <- sf::st_bbox(x)
-  if (is.null(value)) {
+  if (value == 'NULL') {
     data <- opq(bbox = bb) %>% add_osm_feature(key = key) %>% osmdata_sf()
     data <- data$osm_points
     x[, key] <- lengths(st_intersects(x, data))
   } else {
-    value <- rlang::quo_name(rlang::enquo(value))
+    tags <- osmdata::available_tags(value)
+    if (!value %in% tags) {
+      usethis::ui_stop('{value} is not a valid OSM tag of {key}')
+    }
     data <- opq(bbox = bb) %>% add_osm_feature(key = key, value = value) %>% osmdata_sf()
     data <- data$osm_points
     x[, value] <- lengths(st_intersects(x, data))
