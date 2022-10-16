@@ -4,7 +4,16 @@
 \alias{pp_estimate}
 \title{Areal Interpolation of Population Data}
 \usage{
-pp_estimate(target, source, sid, spop, volume = NULL, point = FALSE, method)
+pp_estimate(
+  target,
+  source,
+  sid,
+  spop,
+  volume = NULL,
+  ancillary = NULL,
+  point = FALSE,
+  method
+)
 }
 \arguments{
 \item{target}{An object of class \code{sf} that is used to interpolate data
@@ -20,6 +29,8 @@ census tracts}
 
 \item{volume}{Target feature volume information (height or number of floors).
 Required when \code{method=vwi}}
+
+\item{ancillary}{ancillary information}
 
 \item{point}{Whether to return point geometries (FALSE by default)}
 

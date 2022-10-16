@@ -78,5 +78,8 @@ pp_vgi <- function(x, key, value = NULL) {
   nm <- c(colnames(x)[colnames(x) != 'geometry'], 'geometry')
   x <- x[, nm]
   x <- sf::st_zm(x)
+  if (x_crs != t_crs) {
+    x <- sf::st_transform(x, x_crs)
+  }
   return(x)
 }

@@ -7,9 +7,6 @@
 #'     census tracts
 #' @param sid Source identification number
 #' @param spop Source population values to be interpolated
-#' @param volume Target feature volume information (height or number of floors).
-#'     Required when \code{method=vwi}
-#' @param point Whether to return point geometries (FALSE by default)
 #' @param method Two methods provided: \code{awi} (areal weighting interpolation)
 #'     and \code{vwi} (volume weighting interpolation). \code{awi} proportionately
 #'     interpolates the population values based on areal weights calculated
@@ -17,6 +14,10 @@
 #'     proportionately interpolates the population values based on areal weights
 #'     calculated by the area of intersection between the source and target zones
 #'     multipled by the volume information (height or number of floors).
+#' @param volume Target feature volume information (height or number of floors).
+#'     Required when \code{method=vwi}
+#' @param ancillary ancillary information
+#' @param point Whether to return point geometries (FALSE by default)
 #'
 #' @return An object of class \code{sf} including estimated population
 #'     counts for target features using either \code{awi} or \code{vwi}
@@ -50,7 +51,7 @@
 #' pp_estimate(trg, src, sid = sid, spop = pop,
 #'     method = vwi, volume = floors, point = TRUE)
 #'
-pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE, method) {
+pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NULL, point = FALSE, method) {
   # check arguments
   if (missing(target)) {
     usethis::ui_stop('target is required')
@@ -77,6 +78,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE,
   spop <- rlang::quo_name(rlang::enquo(spop))
   volume <- rlang::quo_name(rlang::enquo(volume))
   method <- rlang::quo_name(rlang::enquo(method))
+  ancillary <- rlang::quo_name(rlang::enquo(ancillary))
 
   # check whether source and .target are of sf class
   sc <- "sf" %in% class(source)
@@ -105,10 +107,10 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE,
   }
 
   # check whether method is valid
-  m <- c('awi', 'vwi')
+  m <- c('awi', 'vwi', 'bdi', 'fdi')
 
   if (!method %in% m) {
-    usethis::ui_stop('{method} is not a valid method. Please choose between awi and vwi')
+    usethis::ui_stop('{method} is not a valid method. Please choose between awi, vwi, bdi and fdi')
   }
 
   # check whether spop is numeric
@@ -145,10 +147,52 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, point = FALSE,
     if (!is.numeric(target[, volume, drop = TRUE])) {
       usethis::ui_stop('{volume} must be numeric')
     }
-
     out <- pp_vwi(target, source = source, sid = sid, spop = spop,
                   volume = volume, point = point)
+  } else if (method == 'bdi') {
+    if (ancillary == 'NULL') {
+      usethis::ui_stop('ancillary is required for bdi')
+    }
+
+    if (!ancillary %in% colnames(target)) {
+      usethis::ui_stop('{ancillary} cannot be found')
+    }
+
+    if (!is.numeric(target[, ancillary, drop = TRUE])) {
+      usethis::ui_stop('{ancillary} must be numeric')
+    }
+    out <- pp_bdi(target, source = source, sid = sid, spop = spop,
+                  point = point, ancillary = ancillary)
+  } else if (method == 'fdi') {
+    if (volume == 'NULL') {
+      usethis::ui_stop('volume is required for fwi')
+    }
+
+    if (!volume %in% colnames(target)) {
+      usethis::ui_stop('{volume} cannot be found')
+    }
+
+    if (!is.numeric(target[, volume, drop = TRUE])) {
+      usethis::ui_stop('{volume} must be numeric')
+    }
+    if (ancillary == 'NULL') {
+      usethis::ui_stop('ancillary is required for fdi')
+    }
+
+    if (!ancillary %in% colnames(target)) {
+      usethis::ui_stop('{ancillary} cannot be found')
+    }
+
+    if (!is.numeric(target[, ancillary, drop = TRUE])) {
+      usethis::ui_stop('{ancillary} must be numeric')
+    }
+
+    out <- pp_fdi(target, source = source, sid = sid, spop = spop,
+                  point = point, ancillary = ancillary, volume = volume)
   }
+
+  nm <- c(colnames(out)[colnames(out) != 'geometry'], 'geometry')
+  out <- out[, nm]
 
   return(out)
 }
