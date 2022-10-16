@@ -28,7 +28,7 @@
 #'     dt <- pp_ancillary(dt, floors, 'amenity')
 #' }
 #'
-pp_ancilalry <- function(x, volume = NULL, key) {
+pp_ancillary <- function(x, volume = NULL, key) {
   if (missing(x)) {
     usethis::ui_stop('x is required')
   }
