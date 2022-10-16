@@ -56,12 +56,10 @@ pp_ancilalry <- function(x, volume = NULL, key) {
     x$vgi <- x$vgi + x[, key[i], drop = TRUE]
   }
 
-  x$bin_night <- 1
-  x$bin_night <- x$bin_night - x$vgi
-  x$bin_night[x$bin_night < 1] <- 0
+  x$binary <- 1
+  x$binary <- x$binary - x$vgi
+  x$binary[x$binary < 1] <- 0
 
-  x$bin_day <- x$vgi
-  x$bin_day[x$bin_day > 1] <- 1
 
   if (volume != 'NULL') {
     if (volume != 'NULL') {
@@ -70,8 +68,9 @@ pp_ancilalry <- function(x, volume = NULL, key) {
       }
     }
     x$flt_day <- x$vgi/x[, volume, drop = TRUE]
-    x$flt_night <- 1 - x$flt_day
-    x$flt_night[x$flt_night <= 0] <- 0
+    x$float <- round(1 - x$flt_day, 3)
+    x$float[x$float <= 0] <- 0
+    x$flt_day <- NULL
   }
   nm <- c(colnames(x)[colnames(x) != 'geometry'], 'geometry')
   x <- x[, nm]
