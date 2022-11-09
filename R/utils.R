@@ -241,7 +241,7 @@ pp_nearest <- function(target, vgi, name) {
   df <- as.data.frame(table(bd))
   names(df) <- c('bld_id', 'nr')
 
-  target[, 'vgi'] <- 0
+  target[, name] <- 0
   for (i in 1:nrow(df)) {
     target[df$bld_id[i] == mirror$myid, name] <- df$nr[i]
   }
