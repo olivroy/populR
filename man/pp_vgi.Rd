@@ -4,13 +4,15 @@
 \alias{pp_vgi}
 \title{Download and Count OSM Features Over Target}
 \usage{
-pp_vgi(x, key, value = NULL)
+pp_vgi(x, key, fun = st_intersects, value = NULL)
 }
 \arguments{
 \item{x}{an object of class \code{sf} that is used to interpolate data
 to. Usually, x may include polygon features representing building units}
 
 \item{key}{osm feature key see \link[osmdata]{available_features}}
+
+\item{fun}{select between nearest and st_intersects}
 
 \item{value}{osm feature value (tag) \link[osmdata]{available_tags}}
 }
