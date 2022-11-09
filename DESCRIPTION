@@ -1,7 +1,7 @@
 Package: populR
 Type: Package
 Title: Population Downscaling
-Version: 0.1.6
+Version: 0.2.0
 Author: Marios Batsaris
 Maintainer: Marios Batsaris <m.batsaris@aegean.gr>
 Description: Downscaling of population data obtained
@@ -23,7 +23,8 @@ Imports:
     Metrics,
     usethis,
     osmdata,
-    dplyr
+    dplyr,
+    units
 Depends: R (>= 3.3.0)
 RoxygenNote: 7.2.1
 Suggests: 
