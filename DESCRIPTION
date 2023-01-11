@@ -1,6 +1,6 @@
 Package: populR
 Type: Package
-Title: Population Downscaling
+Title: Population Downscaling Using Areal Interpolation
 Version: 0.2.0
 Author: Marios Batsaris
 Maintainer: Marios Batsaris <m.batsaris@aegean.gr>
