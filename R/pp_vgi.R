@@ -3,8 +3,6 @@
 #' @param x an object of class \code{sf} that is used to interpolate data
 #'     to. Usually, x may include polygon features representing building units
 #' @param key osm feature key see \link[osmdata]{available_features}
-#' @param fun select between nearest and st_intersects
-#' @param value osm feature value (tag) \link[osmdata]{available_tags}
 #'
 #' @importFrom usethis ui_stop
 #' @importFrom rlang quo_name
@@ -16,7 +14,7 @@
 #' @importFrom osmdata available_features
 #' @importFrom osmdata available_tags
 #' @importFrom osmdata opq
-#' @importFrom osmdata add_osm_feature
+#' @importFrom osmdata add_osm_features
 #' @importFrom osmdata osmdata_sf
 #' @importFrom dplyr %>%
 #' @importFrom units drop_units
@@ -32,19 +30,16 @@
 #'     pp_vgi(trg, key = amenity)
 #'
 #'     # example using both key and value arguments
-#'     pp_vgi(trg, key = amenity, value = pharmacy)
+#'     pp_vgi(trg, key = amenity)
 #' }
 #'
 
-pp_vgi <- function(x, key, fun = st_intersects, value = NULL) {
+pp_vgi <- function(x, key) {
   if (missing(x)) {
     usethis::ui_stop('x is required')
   }
   if (missing(key)) {
     usethis::ui_stop('key is required')
-  }
-  if (missing(fun)) {
-    usethis::ui_stop('fun is required')
   }
 
   xc <- "sf" %in% class(x)
@@ -58,48 +53,38 @@ pp_vgi <- function(x, key, fun = st_intersects, value = NULL) {
     x <- sf::st_transform(x, t_crs)
   }
 
-  key <- rlang::quo_name(rlang::enquo(key))
   af <- osmdata::available_features()
-  if (!key %in% af) {
-    usethis::ui_stop('{key} is not a valid OSM feature')
+  for (i in 1:length(key)) {
+    if (!key[i] %in% af) {
+      usethis::ui_stop('{key[i]} is not a valid OSM feature')
+    }
   }
 
-  fun <- rlang::quo_name(rlang::enquo(fun))
-  f <- c('st_intersects', 'nearest')
-  if (!fun %in% f) {
-    usethis::ui_stop('{fun} must be either st_intersects or nearest')
-  }
+  key <- sprintf("\"%s\"", key)
 
   bb <- sf::st_bbox(x)
-  if (is.null(value)) {
-    data <- opq(bbox = bb) %>% add_osm_feature(key = key) %>% osmdata_sf()
-    data <- data$osm_points
-    if (fun == 'st_intersects') {
-      x[, key] <- lengths(st_intersects(x, data))
-    } else if (fun == 'nearest') {
-     x <- pp_nearest(x, data, key)
-    }
-  } else {
-    tags <- osmdata::available_tags(key)
-    value <- paste(value)
-    for (i in 1:length(value)){
-      if (!value[i] %in% tags) {
-        usethis::ui_stop('{value[i]} is not a valid OSM tag of {key}')
-      }
-      data <- opq(bbox = bb) %>% add_osm_feature(key = key, value = value[i]) %>% osmdata_sf()
-      data <- data$osm_points
-      if (fun == 'st_intersects') {
-        x[, value[i]] <- lengths(st_intersects(x, data))
-      } else if (fun == 'nearest') {
-        x <- pp_nearest(x, data, value[i])
-      }
-    }
-  }
+  dt <- opq(bbox = bb) %>%
+    add_osm_features(features = key) %>%
+    osmdata_sf()
+
+  pt <- dt$osm_points
+  pt <- pt[, c('osm_id', 'geometry')]
+
+  pl <- dt$osm_polygons
+  pl <- suppressWarnings(st_centroid(pl))
+  pl <- pl[, c('osm_id', 'geometry')]
+
+  fdt <- rbind(pt, pl)
+
+  fdt <- sf::st_transform(fdt, x_crs)
+  x <- sf::st_transform(x, x_crs)
+
+  x$pp_vgi <- lengths(st_intersects(x, fdt))
+
+
   nm <- c(colnames(x)[colnames(x) != 'geometry'], 'geometry')
   x <- x[, nm]
   x <- sf::st_zm(x)
-  if (x_crs != t_crs) {
-    x <- sf::st_transform(x, x_crs)
-  }
+
   return(x)
 }
