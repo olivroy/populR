@@ -28,6 +28,7 @@
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
 #' @importFrom sf st_crs
+#' @importFrom sf st_make_valid
 #' @importFrom usethis ui_stop
 #'
 #' @examples
@@ -131,6 +132,10 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
   if (any(colnames(target) == spop)) {
     colnames(target)[names(target) == spop] <- 'target_pop'
   }
+
+  # make valid geometries
+  target <- sf::st_make_valid(target)
+  source <- sf::st_make_valid(source)
 
   if (method == 'awi') {
     out <- pp_awi(target, source = source, sid = sid, spop = spop,
