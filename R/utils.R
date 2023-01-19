@@ -106,6 +106,7 @@ pp_vwi <- function(target, source, sid, spop, volume, point = FALSE) {
 #' @param source an object of class \code{sf}
 #' @param sid source id
 #' @param spop source population
+#' @param volume target volume (height or number of floors)
 #' @param ancillary target ancillary information
 #' @param point whether to use point geometries
 #'
@@ -117,9 +118,14 @@ pp_vwi <- function(target, source, sid, spop, volume, point = FALSE) {
 #'     using bdi
 #' @noRd
 #'
-pp_bdi <- function(target, source, sid, spop, ancillary, point = FALSE) {
+pp_bdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = FALSE) {
 
-  target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T]
+  if (is.null(volume)) {
+    target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T]
+  } else {
+    target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T] * target[, volume, drop = T]
+  }
+
 
   if (point) {
     target <- sf::st_centroid(target)
@@ -168,9 +174,13 @@ pp_bdi <- function(target, source, sid, spop, ancillary, point = FALSE) {
 #'     using fdi
 #' @noRd
 #'
-pp_fdi <- function(target, source, sid, spop, volume, ancillary, point = FALSE) {
+pp_fdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = FALSE) {
 
-  target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T] * target[, volume, drop = T]
+  if (is.null(volume)) {
+    target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T]
+  } else {
+    target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T] * target[, volume, drop = T]
+  }
 
   if (point) {
     target <- sf::st_centroid(target)

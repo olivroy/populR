@@ -166,20 +166,23 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     if (!is.numeric(target[, ancillary, drop = TRUE])) {
       usethis::ui_stop('{ancillary} must be numeric')
     }
-    out <- pp_bdi(target, source = source, sid = sid, spop = spop,
-                  point = point, ancillary = ancillary)
-  } else if (method == 'fdi') {
     if (volume == 'NULL') {
-      usethis::ui_stop('volume is required for fwi')
+      out <- pp_bdi(target, source = source, sid = sid, spop = spop,
+                    point = point, ancillary = ancillary)
+    } else {
+
+      if (!volume %in% colnames(target)) {
+        usethis::ui_stop('{volume} cannot be found')
+      }
+
+      if (!is.numeric(target[, volume, drop = TRUE])) {
+        usethis::ui_stop('{volume} must be numeric')
+      }
+      out <- pp_bdi(target, source = source, sid = sid, spop = spop,
+                    volume = volume, point = point, ancillary = ancillary)
     }
 
-    if (!volume %in% colnames(target)) {
-      usethis::ui_stop('{volume} cannot be found')
-    }
-
-    if (!is.numeric(target[, volume, drop = TRUE])) {
-      usethis::ui_stop('{volume} must be numeric')
-    }
+  } else if (method == 'fdi') {
     if (ancillary == 'NULL') {
       usethis::ui_stop('ancillary is required for fdi')
     }
@@ -192,8 +195,24 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
       usethis::ui_stop('{ancillary} must be numeric')
     }
 
-    out <- pp_fdi(target, source = source, sid = sid, spop = spop,
-                  point = point, ancillary = ancillary, volume = volume)
+    if (volume == 'NULL') {
+      out <- pp_fdi(target, source = source, sid = sid, spop = spop,
+                    point = point, ancillary = ancillary)
+    } else {
+
+      if (!volume %in% colnames(target)) {
+        usethis::ui_stop('{volume} cannot be found')
+      }
+
+      if (!is.numeric(target[, volume, drop = TRUE])) {
+        usethis::ui_stop('{volume} must be numeric')
+      }
+
+      out <- pp_fdi(target, source = source, sid = sid, spop = spop,
+                    point = point, ancillary = ancillary, volume = volume)
+    }
+
+
   }
 
   nm <- c(colnames(out)[colnames(out) != 'geometry'], 'geometry')
