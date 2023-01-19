@@ -26,11 +26,11 @@
 #' \dontrun{
 #'     data('trg')
 #'
-#'     # example using just key
-#'     pp_vgi(trg, key = amenity)
+#'     # example using just a key
+#'     pp_vgi(trg, key = 'amenity')
 #'
-#'     # example using both key and value arguments
-#'     pp_vgi(trg, key = amenity)
+#'     # example using two keys
+#'     pp_vgi(trg, key = c('amenity', 'shop')
 #' }
 #'
 

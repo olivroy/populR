@@ -23,10 +23,10 @@ Download and Count OSM Features Over Target
     data('trg')
 
     # example using just key
-    pp_vgi(trg, key = amenity)
+    pp_vgi(trg, key = 'amenity')
 
     # example using both key and value arguments
-    pp_vgi(trg, key = amenity)
+    pp_vgi(trg, key = c('amenity', 'shop')
 }
 
 }
