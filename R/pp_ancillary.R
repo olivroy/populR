@@ -61,7 +61,7 @@ pp_ancillary <- function(x, volume = NULL, key) {
     if (!volume %in% colnames(x)) {
       usethis::ui_stop('{volume} cannot be found')
     }
-    x$flt_day <- x$vgi/x[, volume, drop = TRUE]
+    x$flt_day <- x[, key, drop = TRUE]/x[, volume, drop = TRUE]
     x$float <- round(1 - x$flt_day, 3)
     x$float[x$float <= 0] <- 0
     x$flt_day <- NULL
