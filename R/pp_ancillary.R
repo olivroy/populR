@@ -51,21 +51,15 @@ pp_ancillary <- function(x, volume = NULL, key) {
     }
   }
 
-  x$vgi <- 0
-  for (i in 1:length(key)) {
-    x$vgi <- x$vgi + x[, key[i], drop = TRUE]
-  }
 
   x$binary <- 1
-  x$binary <- x$binary - x$vgi
+  x$binary <- x$binary - x[, key, drop = TRUE]
   x$binary[x$binary < 1] <- 0
 
 
   if (volume != 'NULL') {
-    if (volume != 'NULL') {
-      if (!volume %in% colnames(x)) {
-        usethis::ui_stop('{volume} cannot be found')
-      }
+    if (!volume %in% colnames(x)) {
+      usethis::ui_stop('{volume} cannot be found')
     }
     x$flt_day <- x$vgi/x[, volume, drop = TRUE]
     x$float <- round(1 - x$flt_day, 3)

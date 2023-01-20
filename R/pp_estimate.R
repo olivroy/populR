@@ -195,22 +195,16 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
       usethis::ui_stop('{ancillary} must be numeric')
     }
 
-    if (volume == 'NULL') {
-      out <- pp_fdi(target, source = source, sid = sid, spop = spop,
-                    point = point, ancillary = ancillary)
-    } else {
-
-      if (!volume %in% colnames(target)) {
-        usethis::ui_stop('{volume} cannot be found')
-      }
-
-      if (!is.numeric(target[, volume, drop = TRUE])) {
-        usethis::ui_stop('{volume} must be numeric')
-      }
-
-      out <- pp_fdi(target, source = source, sid = sid, spop = spop,
-                    point = point, ancillary = ancillary, volume = volume)
+    if (!volume %in% colnames(target)) {
+      usethis::ui_stop('{volume} cannot be found')
     }
+
+    if (!is.numeric(target[, volume, drop = TRUE])) {
+      usethis::ui_stop('{volume} must be numeric')
+    }
+
+    out <- pp_fdi(target, source = source, sid = sid, spop = spop,
+                  point = point, ancillary = ancillary, volume = volume)
 
 
   }

@@ -174,13 +174,9 @@ pp_bdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = 
 #'     using fdi
 #' @noRd
 #'
-pp_fdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = FALSE) {
+pp_fdi <- function(target, source, sid, spop, volume, ancillary, point = FALSE) {
 
-  if (is.null(volume)) {
-    target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T]
-  } else {
-    target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T] * target[, volume, drop = T]
-  }
+  target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T] * target[, volume, drop = T]
 
   if (point) {
     target <- sf::st_centroid(target)
