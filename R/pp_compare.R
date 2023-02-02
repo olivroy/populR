@@ -86,13 +86,15 @@ pp_compare <- function(x, estimated, actual, title) {
   rmse <- Metrics::rmse(x[, actual, drop = T], x[, estimated, drop = T])
   mae <- Metrics::mae(x[, actual, drop = T], x[, estimated, drop = T])
   linear_model <- lm(x[, estimated, drop = T] ~ x[, actual, drop = T])
-  correlation_coef <- round(cor(x[, estimated, drop = T], x[, actual, drop = T]), 5)
+  correlation_coef <- round(cor(x[, estimated, drop = T], x[, actual, drop = T]), 3)
   myList <- list(rmse = rmse, mae = mae, linear_model = linear_model, correlation_coef = correlation_coef)
 
+  # title using correlation coeficient
+  title <- expression(title~R^2~"="~correlation_coef)
+
   # scatterplot with line and correlation coeficient as text
-  plot(x[, actual, drop = T], x[, estimated, drop = T], col="#634B56", main = title, xlab = "Actual", ylab = "Estimated")
+  plot(x[, actual, drop = T], x[, estimated, drop = T], col="#634B56", main = title, cex.main = 1.2, xlab = "Actual", ylab = "Estimated")
   abline(linear_model, col="#FD8D3C")
-  text(x = (max(x[, actual, drop = T]) + min(x[, actual, drop = T]))/2, y = (max(x[, estimated, drop = T]) + min(x[, estimated, drop = T]))/2, label = paste0("r^2 = ", correlation_coef))
 
   return(myList)
 
