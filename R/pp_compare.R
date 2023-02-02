@@ -89,11 +89,10 @@ pp_compare <- function(x, estimated, actual, title) {
   correlation_coef <- round(cor(x[, estimated, drop = T], x[, actual, drop = T]), 3)
   myList <- list(rmse = rmse, mae = mae, linear_model = linear_model, correlation_coef = correlation_coef)
 
-  # title using correlation coeficient
-
   # scatterplot with line and correlation coeficient as text
-  plot(x[, actual, drop = T], x[, estimated, drop = T], col="#634B56", main = title,
-       sub = parse(text = paste0("R^2*~", correlation_coef)), cex.main = 1.2, xlab = "Actual", ylab = "Estimated")
+  plot(x[, actual, drop = T], x[, estimated, drop = T], col="#634B56",
+       main = substitute(paste(title, ", R"^2~paste("= ", correlation_coef)), list(title = title,
+       correlation_coef = correlation_coef)), cex.main = 1.2, xlab = "Actual", ylab = "Estimated")
   abline(linear_model, col="#FD8D3C")
 
   return(myList)
