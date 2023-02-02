@@ -22,10 +22,10 @@ Download and Count OSM Features Over Target
 \dontrun{
     data('trg')
 
-    # example using just key
+    # example using just a key
     pp_vgi(trg, key = 'amenity')
 
-    # example using both key and value arguments
+    # example using two keys
     pp_vgi(trg, key = c('amenity', 'shop')
 }
 
