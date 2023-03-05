@@ -2,7 +2,7 @@
 #'
 #' @param x an object of class \code{sf} that is used to interpolate data
 #'     to. Usually, x may include polygon features representing building units
-#' @param key osm feature key see \link[osmdata]{available_features}
+#' @param key osm feature key (quoted) see \link[osmdata]{available_features}
 #'
 #' @importFrom usethis ui_stop
 #' @importFrom rlang quo_name
@@ -35,6 +35,7 @@
 #'
 
 pp_vgi <- function(x, key) {
+  # check args
   if (missing(x)) {
     usethis::ui_stop('x is required')
   }
@@ -47,12 +48,14 @@ pp_vgi <- function(x, key) {
     usethis::ui_stop('{x} must be an object of class sf')
   }
 
+  # keep track of srid and transform if necessary
   x_crs <- sf::st_crs(x, parameters = TRUE)$srid
   t_crs <- 'EPSG:4326'
   if (x_crs != t_crs) {
     x <- sf::st_transform(x, t_crs)
   }
 
+  # check whether keys exist in osm list
   af <- osmdata::available_features()
   for (i in 1:length(key)) {
     if (!key[i] %in% af) {
@@ -60,28 +63,35 @@ pp_vgi <- function(x, key) {
     }
   }
 
+  # convert key string
   key <- sprintf("\"%s\"", key)
 
+  # get osm_features
   bb <- sf::st_bbox(x)
   dt <- opq(bbox = bb) %>%
     add_osm_features(features = key) %>%
     osmdata_sf()
 
+  # get osm_points
   pt <- dt$osm_points
   pt <- pt[, c('osm_id', 'geometry')]
 
+  # get osm_polygons
   pl <- dt$osm_polygons
   pl <- suppressWarnings(st_centroid(pl))
   pl <- pl[, c('osm_id', 'geometry')]
 
+  # combine both datasets into a new point one
   fdt <- rbind(pt, pl)
 
+  # transform data
   fdt <- sf::st_transform(fdt, x_crs)
   x <- sf::st_transform(x, x_crs)
 
+  # count points over x polygons
   x$pp_vgi <- lengths(st_intersects(x, fdt))
 
-
+  # re-arrange names
   nm <- c(colnames(x)[colnames(x) != 'geometry'], 'geometry')
   x <- x[, nm]
   x <- sf::st_zm(x)
