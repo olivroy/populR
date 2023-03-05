@@ -7,8 +7,8 @@
 pp_compare(x, estimated, actual, title)
 }
 \arguments{
-\item{x}{An object of class \code{sf} including estimated and actual
-values}
+\item{x}{An object of class \code{sf} or \code{data.frame}
+including estimated and actual values}
 
 \item{estimated}{Population estimates using \link[populR]{pp_estimate}
 function}
@@ -28,11 +28,11 @@ Comparison to Other Data
 data('src')
 data('trg')
 
-# areal weighting interpolation - awi
+# areal weighted interpolation - awi
 awi <- pp_estimate(trg, src, sid = sid, spop = pop,
     method = awi)
 
-# volume weighting interpolation - vwi
+# volume weighted interpolation - vwi
 vwi <- pp_estimate(trg, src, sid = sid, spop = pop,
     method = vwi, volume = floors)
 
