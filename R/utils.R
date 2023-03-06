@@ -17,9 +17,6 @@
 
 pp_awi <- function(target, source, sid, spop, point = FALSE) {
 
-  # internal tid
-  target$pp_tid <- 1:nrow(target)
-
   # calc area
   target$pp_a <- as.vector(sf::st_area(target))
 
@@ -29,7 +26,6 @@ pp_awi <- function(target, source, sid, spop, point = FALSE) {
 
   # perform intersection
   int <- sf::st_intersection(target, source)
-  int <- int[table(int$pp_tid) == 1, ]
 
   # create wights field
   int$pp_w <- 0
@@ -48,9 +44,6 @@ pp_awi <- function(target, source, sid, spop, point = FALSE) {
 
   # calc target pop
   int$pp_est <- int[, spop, drop = TRUE] * int$pp_w
-
-  # remove pp_tdi
-  int$pp_tid <- NULL
 
   return(int)
 }
@@ -75,9 +68,6 @@ pp_awi <- function(target, source, sid, spop, point = FALSE) {
 #'
 pp_vwi <- function(target, source, sid, spop, volume, point = FALSE) {
 
-  # internal tid
-  target$pp_tid <- 1:nrow(target)
-
   # calc volume
   target$pp_a <- as.vector(sf::st_area(target)) * target[, volume, drop = T]
 
@@ -87,9 +77,6 @@ pp_vwi <- function(target, source, sid, spop, volume, point = FALSE) {
 
   # perform intersection
   int <- sf::st_intersection(target, source)
-
-  # remove duplicate intersections
-  int <- int[table(int$pp_tid) == 1, ]
 
   # create a new file to calc density
   int$pp_w <- 0
@@ -108,9 +95,6 @@ pp_vwi <- function(target, source, sid, spop, volume, point = FALSE) {
 
   # calc target pop
   int$pp_est <- int[, spop, drop = TRUE] * int$pp_w
-
-  # remove pp_tid
-  int$pp_tid <- NULL
 
   return(int)
 
@@ -138,9 +122,6 @@ pp_vwi <- function(target, source, sid, spop, volume, point = FALSE) {
 #'
 pp_bdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = FALSE) {
 
-  # internal tid
-  target$pp_tid <- 1:nrow(target)
-
   if (is.null(volume)) {
     target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T]
   } else {
@@ -154,9 +135,6 @@ pp_bdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = 
 
   # perform intersection
   int <- sf::st_intersection(target, source)
-
-  # remove duplicate intersections
-  int <- int[table(int$pp_tid) == 1, ]
 
   # create a new file to calc density
   int$pp_w <- 0
@@ -175,9 +153,6 @@ pp_bdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = 
 
   # calc target pop
   int$pp_est <- int[, spop, drop = TRUE] * int$pp_w
-
-  # revome pp_tid
-  int$pp_tid <- NULL
 
   return(int)
 
@@ -203,9 +178,6 @@ pp_bdi <- function(target, source, sid, spop, volume = NULL, ancillary, point = 
 #'
 pp_fdi <- function(target, source, sid, spop, volume, ancillary, point = FALSE) {
 
-  # internal tid
-  target$pp_tid <- 1:nrow(target)
-
   # calc volume
   target$pp_a <- as.vector(sf::st_area(target)) * target[, ancillary, drop = T] * target[, volume, drop = T]
 
@@ -215,9 +187,6 @@ pp_fdi <- function(target, source, sid, spop, volume, ancillary, point = FALSE) 
 
   # perform intersection
   int <- sf::st_intersection(target, source)
-
-  # remove duplicate intersections
-  int <- int[table(int$pp_tid) == 1, ]
 
   # create a new file to calc density
   int$pp_w <- 0
@@ -236,9 +205,6 @@ pp_fdi <- function(target, source, sid, spop, volume, ancillary, point = FALSE) 
 
   # calc target pop
   int$pp_est <- int[, spop, drop = TRUE] * int$pp_w
-
-  # remove pp_tid
-  int$pp_tid <- NULL
 
   return(int)
 
