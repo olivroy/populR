@@ -344,13 +344,13 @@ microbenchmark(
 
 In this vignette a demonstration and a comparative analysis of areal 
 interpolation packages implemented in  urban population data is undertaken. 
-`sf` and `areal` provide general purpose AWI functionality while
-`populR` focuses on areal interpolation of population data. Additionally, `populR`
-provides VWI which, to the best of my knowledge, extends R's existing functionality.
+Both `sf` and `areal` packages provide general purpose AWI functionality while
+`populR` package focuses on areal interpolation of population data. Additionally, `populR`
+provides VWI which extends R's existing functionality.
 
-Mytilini, Greece was used as the case study to investigate three main pillars: 
+The city of Mytilini, Greece was used as the case study to investigate three main pillars: 
 a) implementation, b) results, c) performance.  Notes on implementation indicate 
-that `sf` requires only 3 arguments to use while `populR` at least 5 and `areal` 7. 
+that `sf` package requires only 3 arguments to use while `populR` at least 5 and `areal` 7. 
 The results provide insight that ``sf`` and ``awt`` may not be ideal for data that 
 are not completely overlapping. Moreover, ``aws`` and ``awi`` obtained the same 
 results while ``vwi`` outperformed the others in comparison to the reference data set.
