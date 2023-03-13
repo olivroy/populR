@@ -81,17 +81,17 @@ pp_vgi <- function(x, key) {
   pl <- suppressWarnings(st_centroid(pl))
   pl <- pl[, c('osm_id', 'geometry')]
 
-  # combine both datasets into a new point one
+  # combine both datasets into a new single point
   fdt <- rbind(pt, pl)
 
-  # transform data
+  # transform the CRS of the data
   fdt <- sf::st_transform(fdt, x_crs)
   x <- sf::st_transform(x, x_crs)
 
   # count points over x polygons
   x$pp_vgi <- lengths(st_intersects(x, fdt))
 
-  # re-arrange names
+  # re-arrange the names
   nm <- c(colnames(x)[colnames(x) != 'geometry'], 'geometry')
   x <- x[, nm]
   x <- sf::st_zm(x)
