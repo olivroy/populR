@@ -44,19 +44,19 @@
 pp_compare <- function(x, estimated, actual, title) {
   # check arguments
   if (missing(x)) {
-    usethis::ui_stop('x is required')
+    cli::cli_abort('x is required')
   }
 
   if (missing(actual)) {
-    usethis::ui_stop('actual is required')
+    cli::cli_abort('actual is required')
   }
 
   if (missing(estimated)) {
-    usethis::ui_stop('estimated is required')
+    cli::cli_abort('estimated is required')
   }
 
   if (missing(title)) {
-    usethis::ui_stop('title is required')
+    cli::cli_abort('title is required')
   }
 
   actual <- rlang::quo_name(rlang::enquo(actual))
@@ -64,21 +64,21 @@ pp_compare <- function(x, estimated, actual, title) {
 
   # check if exists
   if (!estimated %in% colnames(x)) {
-    usethis::ui_stop('{estimated} cannot be found')
+    cli::cli_abort('{estimated} cannot be found')
   }
 
   if (!actual %in% colnames(x)) {
-    usethis::ui_stop('{actual} cannot be found')
+    cli::cli_abort('{actual} cannot be found')
   }
 
   # check whether args are numeric
   if (!is.numeric(x[, actual, drop = TRUE])) {
-    usethis::ui_stop('{actual} must be numeric')
+    cli::cli_abort('{actual} must be numeric')
   }
 
   # check whether spop is numeric
   if (!is.numeric(x[, estimated, drop = TRUE])) {
-    usethis::ui_stop('{estimated} must be numeric')
+    cli::cli_abort('{estimated} must be numeric')
   }
 
   # calculate rmse, calculate correlation coefficient and create linear regression model

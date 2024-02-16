@@ -29,15 +29,15 @@
 #'
 pp_ancillary <- function(x, volume = NULL, key) {
   if (missing(x)) {
-    usethis::ui_stop('x is required')
+    cli::cli_abort('x is required')
   }
   if (missing(key)) {
-    usethis::ui_stop('key is required')
+    cli::cli_abort('key is required')
   }
 
   xc <- "sf" %in% class(x)
   if (xc == FALSE) {
-    usethis::ui_stop('{x} must be an object of class sf')
+    cli::cli_abort('{x} must be an object of class sf')
   }
 
   volume <- rlang::quo_name(rlang::enquo(volume))
@@ -46,7 +46,7 @@ pp_ancillary <- function(x, volume = NULL, key) {
   for (i in 1:length(key)) {
     k <- key[i]
     if (!k %in% colnames(x)) {
-      usethis::ui_stop('{k} cannot be found')
+      cli::cli_abort('{k} cannot be found')
     }
   }
 
@@ -58,7 +58,7 @@ pp_ancillary <- function(x, volume = NULL, key) {
 
   if (volume != 'NULL') {
     if (!volume %in% colnames(x)) {
-      usethis::ui_stop('{volume} cannot be found')
+      cli::cli_abort('{volume} cannot be found')
     }
     x$flt_day <- x[, key, drop = TRUE]/x[, volume, drop = TRUE]
     x$float <- round(1 - x$flt_day, 3)
