@@ -28,8 +28,8 @@
 #' }
 #'
 pp_ancillary <- function(x, volume = NULL, key) {
-  check_required(x)
-  check_required(key)
+  rlang::check_required(x)
+  rlang::check_required(key)
 
   if (!inherits(x, "sf")) {
     cli::cli_abort('{.arg x} must be an object of class sf, not {.obj_type_friendly {x}.')
