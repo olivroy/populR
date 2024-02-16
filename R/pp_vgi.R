@@ -4,7 +4,6 @@
 #'     to. Usually, x may include polygon features representing building units
 #' @param key osm feature key (quoted) see \link[osmdata]{available_features}
 #'
-#' @importFrom usethis ui_stop
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
 #' @importFrom sf st_bbox

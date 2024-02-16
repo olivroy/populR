@@ -19,7 +19,6 @@
 #' @importFrom rlang enquo
 #' @importFrom Metrics rmse
 #' @importFrom Metrics mae
-#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data

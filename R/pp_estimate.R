@@ -29,7 +29,6 @@
 #' @importFrom rlang enquo
 #' @importFrom sf st_crs
 #' @importFrom sf st_make_valid
-#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data

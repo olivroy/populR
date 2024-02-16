@@ -14,7 +14,6 @@
 #'
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
-#' @importFrom usethis ui_stop
 #'
 #' @examples
 #' # read lib data

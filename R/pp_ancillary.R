@@ -6,7 +6,6 @@
 #'     float ancillary information
 #' @param key OSM feature keys or values available in x
 #'
-#' @importFrom usethis ui_stop
 #' @importFrom rlang quo_name
 #' @importFrom rlang enquo
 #'
