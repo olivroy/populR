@@ -53,25 +53,11 @@
 #'
 pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NULL, point = FALSE, method) {
   # check arguments
-  if (missing(target)) {
-    cli::cli_abort('target is required')
-  }
-
-  if (missing(source)) {
-    cli::cli_abort('source is required')
-  }
-
-  if (missing(sid)) {
-    cli::cli_abort('sid is required')
-  }
-
-  if (missing(spop)) {
-    cli::cli_abort('spop is required')
-  }
-
-  if (missing(method)) {
-    cli::cli_abort('method is required')
-  }
+  rlang::check_required(target)
+  rlang::check_required(source)
+  rlang::check_required(sid)
+  rlang::check_required(spop)
+  rlang::check_required(method)
 
   # enquote args where necessary
   sid <- rlang::quo_name(rlang::enquo(sid))
@@ -81,20 +67,17 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
   ancillary <- rlang::quo_name(rlang::enquo(ancillary))
 
   # check whether source and .target are of sf class
-  sc <- "sf" %in% class(source)
-  tc <- "sf" %in% class(target)
-
-  if (sc == FALSE) {
-    cli::cli_abort("{source} must be an object of class sf")
+  if (!inherits(source, "sf")) {
+    cli::cli_abort("{.arg source} must be an object of class sf, not {.obj_type_friendly {source}}")
   }
 
-  if (tc == FALSE) {
-    cli::cli_abort('{target} must be an object of class sf')
+  if (!inherits(target, "sf")) {
+    cli::cli_abort('{.arg target} must be an object of class sf, not {.obj_type_friendly {target}}.')
   }
 
   # check whether source and target share the same crs
   if (sf::st_crs(target) != sf::st_crs(source)) {
-    cli::cli_abort('CRS mismatch')
+    cli::cli_abort('CRS mismatch.')
   }
 
   # check whether params exist in the given source object
@@ -107,11 +90,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
   }
 
   # check whether method is valid
-  m <- c('awi', 'vwi', 'bdi', 'fdi')
-
-  if (!method %in% m) {
-    cli::cli_abort('{method} is not a valid method. Please choose between awi, vwi, bdi and fdi')
-  }
+  rlang::arg_match0(method, c('awi', 'vwi', 'bdi', 'fdi'))
 
   # check whether spop is numeric
   if (!is.numeric(source[, spop, drop = TRUE])) {
@@ -140,7 +119,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     out <- pp_awi(target, source = source, sid = sid, spop = spop,
                   point = point)
   } else if (method == 'vwi') {
-    if (volume == 'NULL') {
+    if (is.null(volume)) {
       cli::cli_abort('volume is required for vwi')
     }
 
@@ -153,7 +132,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     }
     out <- pp_vwi(target, source = source, sid = sid, spop = spop,
                   volume = volume, point = point)
-  } else if (method == 'bdi') {
+  } else if (is.null(method)) {
     if (ancillary == 'NULL') {
       cli::cli_abort('ancillary is required for bdi')
     }
@@ -182,7 +161,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     }
 
   } else if (method == 'fdi') {
-    if (ancillary == 'NULL') {
+    if (is.null(ancillary)) {
       cli::cli_abort('ancillary is required for fdi')
     }
 

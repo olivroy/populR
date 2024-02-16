@@ -36,21 +36,10 @@
 #'
 pp_round <- function(x, tpop, spop, sid) {
   #check arguments
-  if (missing(x)) {
-    cli::cli_abort('x is required')
-  }
-
-  if (missing(tpop)) {
-    cli::cli_abort('tpop is required')
-  }
-
-  if (missing(spop)) {
-    cli::cli_abort('spop is required')
-  }
-
-  if (missing(sid)) {
-    cli::cli_abort('sid is required')
-  }
+  rlang::check_required(x)
+  rlang::check_required(tpop)
+  rlang::check_required(spop)
+  rlang::check_required(sid)
 
   # check whether colnames exist
   spop <- rlang::quo_name(rlang::enquo(spop))

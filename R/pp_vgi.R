@@ -35,16 +35,12 @@
 
 pp_vgi <- function(x, key) {
   # check args
-  if (missing(x)) {
-    cli::cli_abort('x is required')
-  }
-  if (missing(key)) {
-    cli::cli_abort('key is required')
-  }
+  rlang::check_required(x)
+  rlang::check_required(key)
 
   xc <- "sf" %in% class(x)
-  if (xc == FALSE) {
-    cli::cli_abort('{x} must be an object of class sf')
+  if (!inherits(x, "sf")) {
+    cli::cli_abort('{.arg x} must be an object of class sf, not {.obj_type_friendly {x}}.')
   }
 
   # keep track of srid and transform if necessary
@@ -58,7 +54,7 @@ pp_vgi <- function(x, key) {
   af <- osmdata::available_features()
   for (i in 1:length(key)) {
     if (!key[i] %in% af) {
-      cli::cli_abort('{key[i]} is not a valid OSM feature')
+      cli::cli_abort('{key[i]} is not a valid OSM feature.')
     }
   }
 

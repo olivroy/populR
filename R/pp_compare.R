@@ -43,42 +43,31 @@
 #'
 pp_compare <- function(x, estimated, actual, title) {
   # check arguments
-  if (missing(x)) {
-    cli::cli_abort('x is required')
-  }
-
-  if (missing(actual)) {
-    cli::cli_abort('actual is required')
-  }
-
-  if (missing(estimated)) {
-    cli::cli_abort('estimated is required')
-  }
-
-  if (missing(title)) {
-    cli::cli_abort('title is required')
-  }
+  rlang::check_required(x)
+  rlang::check_required(actual)
+  rlang::check_required(estimated)
+  rlang::check_required(title)
 
   actual <- rlang::quo_name(rlang::enquo(actual))
   estimated <- rlang::quo_name(rlang::enquo(estimated))
 
   # check if exists
   if (!estimated %in% colnames(x)) {
-    cli::cli_abort('{estimated} cannot be found')
+    cli::cli_abort('{estimated} cannot be found in the columns of {.arg x}.')
   }
 
   if (!actual %in% colnames(x)) {
-    cli::cli_abort('{actual} cannot be found')
+    cli::cli_abort('{actual} cannot be found in the columns of {.arg x}.')
   }
 
   # check whether args are numeric
   if (!is.numeric(x[, actual, drop = TRUE])) {
-    cli::cli_abort('{actual} must be numeric')
+    cli::cli_abort('{actual} must be numeric.')
   }
 
   # check whether spop is numeric
   if (!is.numeric(x[, estimated, drop = TRUE])) {
-    cli::cli_abort('{estimated} must be numeric')
+    cli::cli_abort('{estimated} must be numeric.')
   }
 
   # calculate rmse, calculate correlation coefficient and create linear regression model
