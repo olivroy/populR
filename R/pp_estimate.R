@@ -119,7 +119,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     out <- pp_awi(target, source = source, sid = sid, spop = spop,
                   point = point)
   } else if (method == 'vwi') {
-    if (is.null(volume)) {
+    if (volume == 'NULL') {
       cli::cli_abort('volume is required for vwi')
     }
 
@@ -132,7 +132,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     }
     out <- pp_vwi(target, source = source, sid = sid, spop = spop,
                   volume = volume, point = point)
-  } else if (is.null(method)) {
+  } else if (method == 'bdi') {
     if (ancillary == 'NULL') {
       cli::cli_abort('ancillary is required for bdi')
     }
@@ -161,7 +161,7 @@ pp_estimate <- function(target, source, sid, spop, volume = NULL, ancillary = NU
     }
 
   } else if (method == 'fdi') {
-    if (is.null(ancillary)) {
+    if (ancillary == 'NULL') {
       cli::cli_abort('ancillary is required for fdi')
     }
 

@@ -32,7 +32,7 @@ pp_ancillary <- function(x, volume = NULL, key) {
   rlang::check_required(key)
 
   if (!inherits(x, "sf")) {
-    cli::cli_abort('{.arg x} must be an object of class sf, not {.obj_type_friendly {x}.')
+    cli::cli_abort('{.arg x} must be an object of class sf, not {.obj_type_friendly {x}}.')
   }
 
   volume <- rlang::quo_name(rlang::enquo(volume))

@@ -38,7 +38,6 @@ pp_vgi <- function(x, key) {
   rlang::check_required(x)
   rlang::check_required(key)
 
-  xc <- "sf" %in% class(x)
   if (!inherits(x, "sf")) {
     cli::cli_abort('{.arg x} must be an object of class sf, not {.obj_type_friendly {x}}.')
   }
